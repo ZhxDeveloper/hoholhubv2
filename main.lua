@@ -112,9 +112,10 @@ local camera = workspace.CurrentCamera
 
 _G.flytoggle = false
 local flying = false
-local speed = 3  -- Speed multiplier (adjust if needed)
-local movement = Vector3.new(0, 0, 0)
+local speed = 5 -- Adjust flight speed
+
 local flightConnection
+local movement = Vector3.new(0, 0, 0)
 
 local function startFlight()
     if flying then return end
@@ -127,20 +128,20 @@ local function startFlight()
             return
         end
 
-        -- Move in the direction of the camera
+        -- Move based on camera direction
         local moveDirection = (camera.CFrame.LookVector * movement.Z)
             + (camera.CFrame.RightVector * movement.X)
             + (Vector3.new(0, movement.Y, 0))
 
-        humanoidRootPart.CFrame = humanoidRootPart.CFrame + (moveDirection * speed)
+        humanoidRootPart.CFrame = humanoidRootPart.CFrame + (moveDirection * speed * 0.1)
     end)
 end
 
--- Toggles Flight on/off
+-- Toggles Flight
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
 
-    if input.KeyCode == Enum.KeyCode.F then  -- Toggle Flight
+    if input.KeyCode == Enum.KeyCode.F then -- Toggle Flight
         _G.flytoggle = not _G.flytoggle
 
         if _G.flytoggle then
@@ -184,6 +185,7 @@ player.CharacterAdded:Connect(function(newCharacter)
     _G.flytoggle = false
     flying = false
 end)
+
 
 
 -- Settings Tab
