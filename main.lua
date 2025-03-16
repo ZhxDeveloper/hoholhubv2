@@ -113,56 +113,49 @@ local camera = workspace.CurrentCamera
 
 _G.flytoggle = false
 local flying = false
-local speed = 45
-local verticalSpeed = 20
+local speed = 50
+local verticalSpeed = 25
 local movement = Vector3.zero
 local flightConnection
 local bodyVelocity
-
-local function stopFlight()
-    if not flying then return end
-    flying = false
-    _G.flytoggle = false
-
-    if flightConnection then flightConnection:Disconnect() end
-    if bodyVelocity then bodyVelocity:Destroy() end
-
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-    if humanoid then
-        humanoid.PlatformStand = false
-    end
-end
 
 local function startFlight()
     if flying then return end
     flying = true
 
+    -- Disable gravity for smooth flight
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     if humanoid then
         humanoid.PlatformStand = true
     end
 
+    -- Create and apply BodyVelocity
     bodyVelocity = Instance.new("BodyVelocity")
-    bodyVelocity.MaxForce = Vector3.new(500000, 500000, 500000)
-    bodyVelocity.P = 10000
+    bodyVelocity.MaxForce = Vector3.new(500000, 500000, 500000)  -- High force for movement
+    bodyVelocity.P = 10000  -- Power for smooth motion
     bodyVelocity.Parent = humanoidRootPart
 
     flightConnection = RunService.RenderStepped:Connect(function()
         if not _G.flytoggle then
-            stopFlight()
+            if flightConnection then flightConnection:Disconnect() end
+            if bodyVelocity then bodyVelocity:Destroy() end
+            flying = false
+            if humanoid then humanoid.PlatformStand = false end
             return
         end
 
+        -- Calculate movement directions (ENSURING FORWARD MOVEMENT WORKS)
         local moveDirection = Vector3.new(0, movement.Y * verticalSpeed, 0)
         moveDirection = moveDirection 
-                        + (camera.CFrame.LookVector * movement.Z * speed)  
-                        + (camera.CFrame.RightVector * movement.X * speed)  
+                        + (camera.CFrame.LookVector * movement.Z * speed)  -- Forward & Backward
+                        + (camera.CFrame.RightVector * movement.X * speed)  -- Left & Right
 
+        -- Apply velocity
         bodyVelocity.Velocity = moveDirection
     end)
 end
 
--- Toggle & Stop Flight Keybinds
+-- Toggle Flight
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
 
@@ -170,11 +163,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         _G.flytoggle = not _G.flytoggle
         if _G.flytoggle then
             startFlight()
-        else
-            stopFlight()
         end
-    elseif input.KeyCode == Enum.KeyCode.G then -- Stop Flight Instantly
-        stopFlight()
     elseif input.KeyCode == Enum.KeyCode.W then
         movement = movement + Vector3.new(0, 0, 1)
     elseif input.KeyCode == Enum.KeyCode.S then
@@ -210,7 +199,8 @@ end)
 player.CharacterAdded:Connect(function(newCharacter)
     character = newCharacter
     humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-    stopFlight()
+    _G.flytoggle = false
+    flying = false
 end)
 
 
