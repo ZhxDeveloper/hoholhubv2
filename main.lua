@@ -113,9 +113,9 @@ local camera = workspace.CurrentCamera
 
 _G.flytoggle = false
 local flying = false
-local speed = 50
-local verticalSpeed = 25
-local movement = Vector3.new(0, 0, 0)
+local speed = 45
+local verticalSpeed = 20
+local movement = Vector3.zero
 local flightConnection
 local bodyVelocity
 
@@ -144,13 +144,14 @@ local function startFlight()
             return
         end
 
-        -- Calculate movement directions
-        local forward = camera.CFrame.LookVector * movement.Z * speed
-        local right = camera.CFrame.RightVector * movement.X * speed
-        local up = Vector3.new(0, movement.Y * verticalSpeed, 0)
+        -- Calculate movement directions (ENSURING FORWARD MOVEMENT WORKS)
+        local moveDirection = Vector3.new(0, movement.Y * verticalSpeed, 0)
+        moveDirection = moveDirection 
+                        + (camera.CFrame.LookVector * movement.Z * speed)  -- Forward & Backward
+                        + (camera.CFrame.RightVector * movement.X * speed)  -- Left & Right
 
         -- Apply velocity
-        bodyVelocity.Velocity = forward + right + up
+        bodyVelocity.Velocity = moveDirection
     end)
 end
 
@@ -166,15 +167,15 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     elseif input.KeyCode == Enum.KeyCode.W then
         movement = movement + Vector3.new(0, 0, 1)
     elseif input.KeyCode == Enum.KeyCode.S then
-        movement = movement + Vector3.new(0, 0, -1)
+        movement = movement - Vector3.new(0, 0, 1)
     elseif input.KeyCode == Enum.KeyCode.A then
-        movement = movement + Vector3.new(-1, 0, 0)
+        movement = movement - Vector3.new(1, 0, 0)
     elseif input.KeyCode == Enum.KeyCode.D then
         movement = movement + Vector3.new(1, 0, 0)
     elseif input.KeyCode == Enum.KeyCode.Space then
         movement = movement + Vector3.new(0, 1, 0)
     elseif input.KeyCode == Enum.KeyCode.LeftShift then
-        movement = movement + Vector3.new(0, -1, 0)
+        movement = movement - Vector3.new(0, 1, 0)
     end
 end)
 
@@ -182,15 +183,15 @@ UserInputService.InputEnded:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.W then
         movement = movement - Vector3.new(0, 0, 1)
     elseif input.KeyCode == Enum.KeyCode.S then
-        movement = movement - Vector3.new(0, 0, -1)
+        movement = movement + Vector3.new(0, 0, 1)
     elseif input.KeyCode == Enum.KeyCode.A then
-        movement = movement - Vector3.new(-1, 0, 0)
+        movement = movement + Vector3.new(1, 0, 0)
     elseif input.KeyCode == Enum.KeyCode.D then
         movement = movement - Vector3.new(1, 0, 0)
     elseif input.KeyCode == Enum.KeyCode.Space then
         movement = movement - Vector3.new(0, 1, 0)
     elseif input.KeyCode == Enum.KeyCode.LeftShift then
-        movement = movement - Vector3.new(0, -1, 0)
+        movement = movement + Vector3.new(0, 1, 0)
     end
 end)
 
