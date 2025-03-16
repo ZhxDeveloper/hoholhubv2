@@ -113,8 +113,8 @@ local camera = workspace.CurrentCamera
 
 _G.flytoggle = false
 local flying = false
-local speed = 45
-local verticalSpeed = 20
+local speed = 55
+local verticalSpeed = 25
 local movement = Vector3.zero
 local flightConnection
 local bodyVelocity
