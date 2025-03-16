@@ -34,19 +34,6 @@ Rayfield:Notify({
    Image = 4483362458,
 })
 
-local Tab = Window:CreateTab("Farm", 4483362458)
-
-local Tab = Window:CreateTab("Esp", 4483362458)
-
-local Toggle = Tab:CreateToggle({
-   Name = "PlayerEsp",
-   CurrentValue = false,
-   Flag = "plyresp1", 
-   Callback = function(v)
-      _G.ESPToggle = v
-   end,
-})
-
 local Tab = Window:CreateTab("Universal", 4483362458)
 
 -- Speed Toggle Keybind
@@ -67,40 +54,6 @@ local KeybindSpeed = Tab:CreateKeybind({
    end
 })
 
--- Flight Toggle Keybind
-local KeybindFlight = Tab:CreateKeybind({
-   Name = "Toggle Flight",
-   CurrentKeybind = "F",  -- You can change this to any key you like
-   HoldToInteract = false,
-   Flag = "FlightKeybind",
-   Callback = function()
-      _G.flytoggle = not _G.flytoggle
-      Rayfield:Notify({
-          Title = "Flight Toggle",
-          Content = "Flight is now " .. (_G.flytoggle and "ON" or "OFF"),
-          Duration = 2,
-          Image = 4483362458,
-          Actions = {}
-      })
-   end
-})
-
--- Speed functionality (walk speed control)
-game:GetService("RunService").Heartbeat:Connect(function()
-    local player = game.Players.LocalPlayer
-    local character = player.Character
-    if character then
-        local humanoid = character:FindFirstChild("Humanoid")
-        if humanoid then
-            if _G.wlkspeedtoggle then
-                humanoid.WalkSpeed = 75 -- Set speed when enabled
-            else
-                humanoid.WalkSpeed = 16  -- Default speed when disabled
-            end
-        end
-    end
-end)
-
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
@@ -112,8 +65,7 @@ local camera = workspace.CurrentCamera
 
 _G.flytoggle = false
 local flying = false
-local speed = 5 -- Adjust flight speed
-
+local speed = 5
 local flightConnection
 local movement = Vector3.new(0, 0, 0)
 
@@ -121,10 +73,17 @@ local function startFlight()
     if flying then return end
     flying = true
 
+    -- Disable gravity for smooth flight
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.PlatformStand = true
+    end
+
     flightConnection = RunService.RenderStepped:Connect(function()
         if not _G.flytoggle then
             if flightConnection then flightConnection:Disconnect() end
             flying = false
+            if humanoid then humanoid.PlatformStand = false end
             return
         end
 
@@ -137,7 +96,7 @@ local function startFlight()
     end)
 end
 
--- Toggles Flight
+-- Toggle Flight
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
 
@@ -178,14 +137,13 @@ UserInputService.InputEnded:Connect(function(input)
     end
 end)
 
--- Reset on Respawn
+-- Reset Flight on Respawn
 player.CharacterAdded:Connect(function(newCharacter)
     character = newCharacter
     humanoidRootPart = character:WaitForChild("HumanoidRootPart")
     _G.flytoggle = false
     flying = false
 end)
-
 
 
 -- Settings Tab
