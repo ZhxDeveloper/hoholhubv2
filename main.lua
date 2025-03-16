@@ -113,8 +113,8 @@ local camera = workspace.CurrentCamera
 
 _G.flytoggle = false
 local flying = false
-local speed = 50
-local verticalSpeed = 25
+local speed = 45
+local verticalSpeed = 20
 local movement = Vector3.zero
 local flightConnection
 local bodyVelocity
@@ -202,6 +202,7 @@ player.CharacterAdded:Connect(function(newCharacter)
     _G.flytoggle = false
     flying = false
 end)
+
 
 
 -- Settings Tab
