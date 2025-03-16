@@ -108,90 +108,76 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
-local camera = game.Workspace.CurrentCamera
+local camera = workspace.CurrentCamera
 
 _G.flytoggle = false
 local flying = false
+local speed = 3  -- Speed multiplier (adjust if needed)
+local movement = Vector3.new(0, 0, 0)
 local flightConnection
 
-local speed = 50  -- Horizontal speed
-local verticalSpeed = 25  -- Vertical movement speed
-local movement = Vector3.new(0, 0, 0)
-
-local bodyVelocity = Instance.new("BodyVelocity")
-bodyVelocity.MaxForce = Vector3.new(500000, 500000, 500000)  -- Strong force for movement
-bodyVelocity.P = 10000  -- Smooth movement control
-
-local function enableFlight()
-    if flying then return end  -- Prevent multiple loops
-
+local function startFlight()
+    if flying then return end
     flying = true
-    humanoidRootPart.Anchored = false
-    bodyVelocity.Parent = humanoidRootPart
 
-    -- Create a stable loop for movement
-    flightConnection = RunService.Heartbeat:Connect(function()
+    flightConnection = RunService.RenderStepped:Connect(function()
         if not _G.flytoggle then
             if flightConnection then flightConnection:Disconnect() end
             flying = false
-            bodyVelocity.Parent = nil
             return
         end
 
-        -- Apply movement direction
-        local forwardDirection = camera.CFrame.LookVector * movement.Z * speed
-        local rightDirection = camera.CFrame.RightVector * movement.X * speed
-        local upDirection = Vector3.new(0, movement.Y * verticalSpeed, 0)
+        -- Move in the direction of the camera
+        local moveDirection = (camera.CFrame.LookVector * movement.Z)
+            + (camera.CFrame.RightVector * movement.X)
+            + (Vector3.new(0, movement.Y, 0))
 
-        bodyVelocity.Velocity = forwardDirection + rightDirection + upDirection
+        humanoidRootPart.CFrame = humanoidRootPart.CFrame + (moveDirection * speed)
     end)
 end
 
--- Toggle flight on key press
+-- Toggles Flight on/off
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed then
-        if input.UserInputType == Enum.UserInputType.Keyboard then
-            if input.KeyCode == Enum.KeyCode.W then
-                movement = movement + Vector3.new(0, 0, 1)
-            elseif input.KeyCode == Enum.KeyCode.S then
-                movement = movement + Vector3.new(0, 0, -1)
-            elseif input.KeyCode == Enum.KeyCode.A then
-                movement = movement + Vector3.new(-1, 0, 0)
-            elseif input.KeyCode == Enum.KeyCode.D then
-                movement = movement + Vector3.new(1, 0, 0)
-            elseif input.KeyCode == Enum.KeyCode.Space then
-                movement = movement + Vector3.new(0, 1, 0)
-            elseif input.KeyCode == Enum.KeyCode.LeftShift then
-                movement = movement + Vector3.new(0, -1, 0)
-            elseif input.KeyCode == Enum.KeyCode.F then  -- Toggle Flight Keybind
-                _G.flytoggle = not _G.flytoggle
-                if _G.flytoggle then
-                    enableFlight()
-                end
-            end
+    if gameProcessed then return end
+
+    if input.KeyCode == Enum.KeyCode.F then  -- Toggle Flight
+        _G.flytoggle = not _G.flytoggle
+
+        if _G.flytoggle then
+            startFlight()
         end
+    elseif input.KeyCode == Enum.KeyCode.W then
+        movement = movement + Vector3.new(0, 0, 1)
+    elseif input.KeyCode == Enum.KeyCode.S then
+        movement = movement + Vector3.new(0, 0, -1)
+    elseif input.KeyCode == Enum.KeyCode.A then
+        movement = movement + Vector3.new(-1, 0, 0)
+    elseif input.KeyCode == Enum.KeyCode.D then
+        movement = movement + Vector3.new(1, 0, 0)
+    elseif input.KeyCode == Enum.KeyCode.Space then
+        movement = movement + Vector3.new(0, 1, 0)
+    elseif input.KeyCode == Enum.KeyCode.LeftShift then
+        movement = movement + Vector3.new(0, -1, 0)
     end
 end)
 
 UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Keyboard then
-        if input.KeyCode == Enum.KeyCode.W then
-            movement = movement - Vector3.new(0, 0, 1)
-        elseif input.KeyCode == Enum.KeyCode.S then
-            movement = movement - Vector3.new(0, 0, -1)
-        elseif input.KeyCode == Enum.KeyCode.A then
-            movement = movement - Vector3.new(-1, 0, 0)
-        elseif input.KeyCode == Enum.KeyCode.D then
-            movement = movement - Vector3.new(1, 0, 0)
-        elseif input.KeyCode == Enum.KeyCode.Space then
-            movement = movement - Vector3.new(0, 1, 0)
-        elseif input.KeyCode == Enum.KeyCode.LeftShift then
-            movement = movement - Vector3.new(0, -1, 0)
-        end
+    if input.KeyCode == Enum.KeyCode.W then
+        movement = movement - Vector3.new(0, 0, 1)
+    elseif input.KeyCode == Enum.KeyCode.S then
+        movement = movement - Vector3.new(0, 0, -1)
+    elseif input.KeyCode == Enum.KeyCode.A then
+        movement = movement - Vector3.new(-1, 0, 0)
+    elseif input.KeyCode == Enum.KeyCode.D then
+        movement = movement - Vector3.new(1, 0, 0)
+    elseif input.KeyCode == Enum.KeyCode.Space then
+        movement = movement - Vector3.new(0, 1, 0)
+    elseif input.KeyCode == Enum.KeyCode.LeftShift then
+        movement = movement - Vector3.new(0, -1, 0)
     end
 end)
 
--- Respawn listener to reset flight state
+-- Reset on Respawn
 player.CharacterAdded:Connect(function(newCharacter)
     character = newCharacter
     humanoidRootPart = character:WaitForChild("HumanoidRootPart")
