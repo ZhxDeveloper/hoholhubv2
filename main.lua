@@ -109,12 +109,12 @@ local function enableFlight()
     local camera = game.Workspace.CurrentCamera
 
     local flying = false
-    local speed = 50  -- Horizontal flight speed
-    local verticalSpeed = 25  -- Vertical speed
+    local speed = 45-- Horizontal flight speed
+    local verticalSpeed = 20 -- Vertical speed
     local movement = Vector3.new(0, 0, 0)
     local bodyVelocity = Instance.new("BodyVelocity")
-    bodyVelocity.MaxForce = Vector3.new(500000, 500000, 500000)  -- Make sure the force is large enough for movement
-    bodyVelocity.P = 10000  -- Adjust for smoothness
+    bodyVelocity.MaxForce = Vector3.new(700000, 700000, 700000)  -- Make sure the force is large enough for movement
+    bodyVelocity.P = 20000  -- Adjust for smoothness
 
     local userInputService = game:GetService("UserInputService")
 
