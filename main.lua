@@ -70,7 +70,7 @@ local KeybindSpeed = Tab:CreateKeybind({
 -- Flight Toggle Keybind
 local KeybindFlight = Tab:CreateKeybind({
    Name = "Toggle Flight",
-   CurrentKeybind = "F",  -- You can change this to any key you like
+   CurrentKeybind = "J",  -- You can change this to any key you like
    HoldToInteract = false,
    Flag = "FlightKeybind",
    Callback = function()
@@ -159,7 +159,7 @@ end
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
 
-    if input.KeyCode == Enum.KeyCode.F then -- Toggle Flight
+    if input.KeyCode == Enum.KeyCode.J then -- Toggle Flight
         _G.flytoggle = not _G.flytoggle
         if _G.flytoggle then
             startFlight()
